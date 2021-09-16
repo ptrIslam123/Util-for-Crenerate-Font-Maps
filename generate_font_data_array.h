@@ -14,7 +14,7 @@ public:
 
     bool operator<< (std::ifstream &file);
 
-    bool generateHeaderFile(const std::vector<std::string> &includes, std::ofstream &file);
+    bool generateHeaderFile(const std::string &doc, const std::vector<std::string> &includes, std::ofstream &file);
     bool generateSourceFile(std::ofstream &file);
 
 private:

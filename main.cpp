@@ -14,7 +14,9 @@ int main() {
 
     fontArray << inFile;
 
-    fontArray.generateHeaderFile({
+    fontArray.generateHeaderFile(
+        "Сгенерированные данные шрифта",
+        {
         "#include \"wise_types.h\"",
         "#include \"containers/array.h\""
         }, outHeaderFile);

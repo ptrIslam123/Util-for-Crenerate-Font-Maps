@@ -3,6 +3,9 @@
 
 namespace wise {
 
+/**
+ * @brief Сгенерированные данные шрифта
+ */
 extern Array<Byte, 16384> buffer;
 
 } //namespace wise

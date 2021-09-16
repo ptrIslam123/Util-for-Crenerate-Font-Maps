@@ -22,13 +22,17 @@ bool FontDataArray::operator<< (std::ifstream &file) {
     return true;
 }
 
-bool FontDataArray::generateHeaderFile(const std::vector<std::string> &includes, std::ofstream &file) {
+bool FontDataArray::generateHeaderFile(
+        const std::string &doc, const std::vector<std::string> &includes, std::ofstream &file) {
     for (auto &include : includes) {
         file << include;
         file << "\n";
     }
 
     file << "\nnamespace wise {\n\n";
+        file << "/**\n";
+        file << " * @brief " << doc << "\n";
+        file << " */\n";
         file << "extern Array<Byte, " << sizeArray_ << "> " << arrayName_ << ";";
     file << "\n\n} //namespace wise\n";
     return true;
