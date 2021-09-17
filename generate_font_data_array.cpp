@@ -2,27 +2,24 @@
 
 #include <iostream>
 
-
-
-FontDataArray::FontDataArray(const std::string &arrayName, const size_t height, const size_t width):
-arrayName_(arrayName),
-data_(nullptr),
-sizeArray_(height * width) {
+inline
+StatusInfo makeStatusOk() {
+    return std::make_pair(Status_ok, std::string());
 }
 
-FontDataArray::~FontDataArray() {
-    delete data_;
+FontDataArray::FontDataArray(const std::string &arrayName):
+arrayName_(arrayName),
+data_(),
+sizeArray_(0) {
 }
 
 bool FontDataArray::operator<< (std::ifstream &file) {
-    if (readBytes(file) == nullptr) {
-        /* */
-        throw std::bad_alloc{};
-    }
+    sizeArray_ = getFileSize(file);
+    readBytes(file);
     return true;
 }
 
-bool FontDataArray::generateHeaderFile(
+StatusInfo FontDataArray::generateHeaderFile(
         const std::string &doc, const std::vector<std::string> &includes, std::ofstream &file) {
     for (auto &include : includes) {
         file << include;
@@ -30,15 +27,17 @@ bool FontDataArray::generateHeaderFile(
     }
 
     file << "\nnamespace wise {\n\n";
+
         file << "/**\n";
         file << " * @brief " << doc << "\n";
         file << " */\n";
         file << "extern Array<Byte, " << sizeArray_ << "> " << arrayName_ << ";";
+
     file << "\n\n} //namespace wise\n";
-    return true;
+    return makeStatusOk();
 }
 
-bool FontDataArray::generateSourceFile(std::ofstream &file) {
+StatusInfo FontDataArray::generateSourceFile(std::ofstream &file) {
     file << "#include \"" << arrayName_ << ".h\"\n";
     file << "\nnamespace wise {\n\n";
 
@@ -47,20 +46,23 @@ bool FontDataArray::generateSourceFile(std::ofstream &file) {
         file << "\n};";
 
     file << "\n\n} //namespace wise\n";
-    return true;
+    return makeStatusOk();
 }
 
-FontDataArray::Byte *FontDataArray::readBytes(std::ifstream &file) {
-    data_ = new Byte [sizeArray_];
-
-    if (data_ == nullptr) {
-        return nullptr;
+StatusInfo FontDataArray::readBytes(std::ifstream &file) {
+    try {
+        data_.resize(sizeArray_);
+    } catch (std::bad_alloc &e) {
+        return std::make_pair(Status_bad_alloc, "");
+    } catch (const std::exception &e) {
+        return std::make_pair(Status_undefine_exception, "");
     }
-    file.read((char*)data_, sizeArray_);
-    return data_;
+
+    while (!file.eof()) {
+        data_.push_back(file.get());
+    }
+    return makeStatusOk();
 }
-
-
 
 void FontDataArray::writeBytes(std::ofstream &file) {
     for (size_t i = 0; i <sizeArray_; ++i) {
@@ -74,4 +76,15 @@ void FontDataArray::writeBytes(std::ofstream &file) {
             file << ", ";
         }
     }
+}
+
+size_t FontDataArray::getFileSize(std::ifstream &file) {
+    file.seekg(0, std::ios::end);
+    const size_t size = file.tellg();
+    file.seekg(0, std::ios::beg);
+    return size;
+}
+
+size_t FontDataArray::sizeArray() const {
+    return sizeArray_;
 }
