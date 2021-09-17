@@ -53,9 +53,9 @@ StatusInfo FontDataArray::readBytes(std::ifstream &file) {
     try {
         data_.resize(sizeArray_);
     } catch (std::bad_alloc &e) {
-        return std::make_pair(Status_bad_alloc, "");
+        return std::make_pair(Status_bad_alloc, "the file size  is too large");
     } catch (const std::exception &e) {
-        return std::make_pair(Status_undefine_exception, "");
+        return std::make_pair(Status_undefine_exception, e.what());
     }
 
     while (!file.eof()) {
